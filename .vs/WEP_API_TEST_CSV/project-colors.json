@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "c00359f0-fc51-454e-a8aa-6dd4cc12b215": {
+      "ProjectGuid": "c00359f0-fc51-454e-a8aa-6dd4cc12b215",
+      "DisplayName": "WEP_API_TEST_CSV",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    }
+  },
+  "NextColorIndex": 1
+}

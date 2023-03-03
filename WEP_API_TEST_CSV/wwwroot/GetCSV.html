@@ -1,0 +1,294 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>    
+        <input type="text" id="seacrhText" name="searchText" placeholder="Search Here!"/>
+    </div>
+
+    <div>
+        <table>
+            <thead>
+                <tr><a href="#">Id </a></tr>
+                <tr> <a id="aName" href="#">Name </a></tr>
+                <tr><a href="#">DateOfBirth </a></tr>
+                <tr><a href="#">Married </a></tr>
+                <tr><a href="#">Phone </a></tr>
+                <tr><a id="aSalary" href="#">Salary </a></tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <input type="button" value="AddPerson"/>
+    </div>
+
+
+    <script>
+        var ArrCSV = []
+        window.addEventListener('load', (e) => {
+               
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "api/Csv");
+            xhr.setRequestHeader("content-type", "application/json");
+            xhr.setRequestHeader("cache-control", "no-cache");
+
+            xhr.onload = () => {
+                if (xhr.status == 200) {
+                    console.log(xhr.response);
+                    const CSVDocs = JSON.parse(xhr.response);
+                    let rows = document.querySelector("tbody");
+                    CSVDocs.forEach(Doc => {
+                        //console.log(Doc);
+                        rows.append(createRow(Doc));
+                        ArrCSV.push(Doc)
+                    });
+                   
+
+
+                } else {
+                    console.log("Server response: ", xhr.statusText);
+                }
+            };
+
+            xhr.send()
+
+        });
+
+        function createRow(CsvDoc) {
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", CsvDoc.id);
+
+            const idTd = document.createElement("td");
+            idTd.append(CsvDoc.id)
+            tr.append(idTd);
+
+            const NameTd = document.createElement("td");
+            const inputName = document.createElement("input");
+            inputName.type = "text";
+            inputName.value = CsvDoc.name;
+            NameTd.append(inputName)
+            tr.append(NameTd);
+
+            const DateOfBirthTd = document.createElement("td");
+            const inputDate = document.createElement("input");
+            inputDate.type = "text";
+            inputDate.value = CsvDoc.dateOfBirth;
+            DateOfBirthTd.append(inputDate)
+            tr.append(DateOfBirthTd)
+
+            const MarriedTd = document.createElement("td");
+            const inputMarried = document.createElement("input");
+            inputMarried.type = "checkbox";
+            inputMarried.value = CsvDoc.married
+
+            if (inputMarried.value == "true")
+                inputMarried.checked = true
+            else
+                inputMarried.checked = false;
+
+            MarriedTd.append(inputMarried);
+            tr.append(MarriedTd);
+
+            const PhoneTd = document.createElement("td");
+            const inputPhone = document.createElement("input");
+            inputPhone.type = "text";
+            inputPhone.value = CsvDoc.phone;
+            PhoneTd.append(inputPhone);
+            tr.append(PhoneTd);
+
+            const SalaryTd = document.createElement("td");
+            const inputSalary = document.createElement("input");
+            inputSalary.type = "text";
+            inputSalary.value = CsvDoc.salary;
+            SalaryTd.append(inputSalary);
+            tr.append(SalaryTd);
+
+            //delete
+            const linkDeleteTd = document.createElement("td");
+            const removeLink = document.createElement("a");
+            removeLink.setAttribute("data-id", CsvDoc.id);
+            removeLink.setAttribute("href", "#");
+            removeLink.append("Delete");
+            removeLink.addEventListener("click", e => {
+                e.preventDefault();
+                deleteCSV(CsvDoc.id);
+            });
+            linkDeleteTd.append(removeLink);
+            tr.append(linkDeleteTd);
+
+            //update
+
+            const linkUpdateTd = document.createElement("td");
+            const updateLink = document.createElement("a");
+            updateLink.setAttribute("data-id", CsvDoc.id);
+            updateLink.setAttribute("href", "#");
+            updateLink.append("Update");
+            updateLink.addEventListener("click", e => {
+                e.preventDefault();
+                // console.log(inputMarried.checked)
+                if (inputMarried.checked == true)
+                    var married = true
+                else
+                    married = false
+
+                updateCSV(CsvDoc.id, inputName.value, inputDate.value, married, inputPhone.value, inputSalary.value);
+
+                var tmpCSV = ArrCSV.find(n => n.id == CsvDoc.id)
+                var index = ArrCSV.indexOf(tmpCSV);
+
+                tmpCSV.name = inputName.value;
+                tmpCSV.date = inputDate.value;
+                tmpCSV.married = married;
+                tmpCSV.phone = inputPhone.value;
+                tmpCSV.salary = inputSalary.value
+
+                ArrCSV[index] = tmpCSV;
+                console.log(ArrCSV)
+            })
+            linkDeleteTd.append(updateLink);
+            tr.append(linkUpdateTd);
+            return tr;
+        }
+
+        var AEvent = document.getElementById("aName");
+        AEvent.addEventListener("click", (e) => {
+            e.preventDefault();
+            let rows = document.querySelector("tbody");
+            ArrCSV = ArrCSV.sort((a, b) => { return a.name.localeCompare(b.name)})
+            console.log(ArrCSV)
+
+            while (rows.lastChild) {
+                rows.removeChild(rows.lastChild);
+            }
+           ArrCSV.forEach(Doc => {
+                //console.log(Doc);
+                rows.append(createRow(Doc));
+                
+           });
+
+        })
+
+        
+
+        var searchText = document.getElementById("seacrhText");
+        searchText.addEventListener("input", (e) => {
+            let rows = document.querySelector("tbody");
+            while (rows.lastChild) {
+                rows.removeChild(rows.lastChild);
+            }
+            var searchByName = ArrCSV.find(d => d.name.startsWith(e.target.value))
+            if (searchByName != null) {
+             
+                rows.append(createRow(searchByName));
+            }
+            var searchByDate = ArrCSV.find(d => d.date == e.target.value)
+            if (searchByDate != null) {
+                rows.append(createRow(searchByDate));
+            }
+
+            var searchByPhone = ArrCSV.find(d => d.phone.startsWith(e.target.value))
+            if (searchByPhone != null) {
+                rows.append(createRow(searchByPhone));
+            }
+
+
+            var searchBySalary = ArrCSV.find(d => d.salary == e.target.value)
+            if (searchBySalary != null) {
+                rows.append(createRow(searchBySalary));
+            }
+
+            if (e.target.value == "") {
+               
+                while (rows.lastChild) {
+                    rows.removeChild(rows.lastChild);                    
+               
+                }
+
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", "api/Csv");
+                xhr.setRequestHeader("content-type", "application/json");
+                xhr.setRequestHeader("cache-control", "no-cache");
+
+                xhr.onload = () => {
+                    if (xhr.status == 200) {
+                        console.log(xhr.response);
+                        const CSVDocs = JSON.parse(xhr.response);
+                       /* let*/ rows = document.querySelector("tbody");
+                        CSVDocs.forEach(Doc => {
+                            //console.log(Doc);
+                            rows.append(createRow(Doc));
+                            ArrCSV.push(Doc)
+                        });
+
+
+
+                    } else {
+                        console.log("Server response: ", xhr.statusText);
+                    }
+                };
+
+                xhr.send()
+            }
+
+        });
+
+        function deleteCSV(id) {
+            const xhr = new XMLHttpRequest();
+            xhr.open("DELETE", "api/Csv/" + id);
+            xhr.setRequestHeader("content-type", "application/json");
+            xhr.setRequestHeader("cache-control", "no-cache");
+
+            xhr.onload = () => {
+                if (xhr.status == 200) {
+
+                    document.querySelector(["tr[data-rowid='" + id + "']"]).remove();
+
+                    tmpCSV = ArrCSV.find(n => n.id == id)
+                    var index = ArrCSV.indexOf(tmpCSV);
+                    ArrCSV.splice(1, index);
+
+                }
+                else {
+                    console.log("Server response: ", xhr.statusText);
+                }
+            };
+
+            xhr.send()
+        }
+
+        function updateCSV(id, name, dateOfBirth, married, phone, salary) {
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", "api/Csv");
+            xhr.setRequestHeader("content-type", "application/json");
+            xhr.setRequestHeader("cache-control", "no-cache");
+
+            xhr.onload = () => {
+                if (xhr.status == 200) {
+
+
+
+                } else {
+
+                }
+            };
+
+            xhr.send(JSON.stringify(
+                {
+                    id: parseInt(id, 10),
+                    name: name,
+                    dateOfBirth: dateOfBirth,
+                    married: married,
+                    phone: phone,
+                    salary: parseFloat(salary)
+                }
+            ))
+        }
+
+
+    </script>
+</body>
+</html>
