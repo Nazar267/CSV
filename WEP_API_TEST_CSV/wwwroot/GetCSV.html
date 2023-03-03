@@ -12,7 +12,7 @@
     <div>
         <table>
             <thead>
-                <tr><a href="#">Id </a></tr>
+                <tr><a>Id </a></tr>
                 <tr> <a id="aName" href="#">Name </a></tr>
                 <tr><a href="#">DateOfBirth </a></tr>
                 <tr><a href="#">Married </a></tr>
@@ -22,7 +22,6 @@
             <tbody>
             </tbody>
         </table>
-        <input type="button" value="AddPerson"/>
     </div>
 
 
@@ -57,6 +56,8 @@
             xhr.send()
 
         });
+
+    
 
         function createRow(CsvDoc) {
             const tr = document.createElement("tr");
